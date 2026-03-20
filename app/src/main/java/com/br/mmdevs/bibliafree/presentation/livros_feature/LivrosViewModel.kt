@@ -26,7 +26,27 @@ class LivrosViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _stateLivros: MutableState<LivroState> = mutableStateOf(LivroState.Loading)
-    var stateLivros: MutableState<LivroState> = _stateLivros
+    private val _searchQuery = mutableStateOf("")
+    val searchQuery: MutableState<String> = _searchQuery
+
+    // Altere o stateLivros para ser um getter que filtra a lista
+    val stateLivros: LivroState
+        get() {
+            val state = _stateLivros.value
+            if (state is LivroState.Success && _searchQuery.value.isNotEmpty()) {
+                val filtered = state.livros.filter { item ->
+                    // Aqui usamos sua função getNomeLivro para filtrar pelo nome real
+                    val nomeCompleto = getNomeLivro(item.abbrev)
+                    nomeCompleto.contains(_searchQuery.value, ignoreCase = true)
+                }
+                return LivroState.Success(filtered)
+            }
+            return state
+        }
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
 
     private val _chapters = MutableStateFlow<List<List<String>>>(emptyList())
     val chapters: StateFlow<List<List<String>>> = _chapters

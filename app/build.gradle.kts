@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.material3)
 
     // room
     ksp(libs.androidx.room.compiler)
@@ -79,13 +80,13 @@ dependencies {
 
     // Icones
     implementation(libs.icons.font.awesome)
-    implementation("com.composables:icons-heroicons-outline-android:2.2.1")
-    implementation("com.composables:icons-heroicons-solid-android:2.2.1")
-    implementation("com.composables:icons-heroicons-mini-android:2.2.1")
-    implementation("com.composables:icons-heroicons-micro-android:2.2.1")
+    implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
+    implementation("br.com.devsrsouza.compose.icons:tabler-icons:1.1.1")
 
     // storage simples
     implementation("androidx.datastore:datastore-preferences:1.2.1")
+    implementation(libs.androidx.core.splashscreen)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -16,8 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.lazy.rememberLazyListState
+
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,10 +25,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -39,6 +42,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,10 +55,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.br.mmdevs.bibliafree.R
+import com.br.mmdevs.bibliafree.presentation.ui.theme.corAzul
+import com.br.mmdevs.bibliafree.presentation.ui.theme.corLogo
+import com.br.mmdevs.bibliafree.presentation.ui.theme.corPreto
 import com.br.mmdevs.bibliafree.utils.shareText
+import compose.icons.FeatherIcons
 import compose.icons.FontAwesomeIcons
+import compose.icons.TablerIcons
+import compose.icons.feathericons.ArrowLeft
+import compose.icons.feathericons.Minus
+import compose.icons.feathericons.Plus
+import compose.icons.feathericons.Share
 import compose.icons.fontawesomeicons.Brands
-
+import compose.icons.tablericons.Direction
+import compose.icons.tablericons.Directions
+import compose.icons.tablericons.DotsVertical
+import compose.icons.tablericons.List
+import compose.icons.tablericons.Note
+import compose.icons.tablericons.Notebook
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("ServiceCast")
@@ -70,7 +89,12 @@ fun VersiculoScreen(
     viewModel: LivrosViewModel
 
 ) {
+    // 1. Estado do Scroll e Scope para animação
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
+    // 2. Estado para o Dropdown
+    var menuExpanded by remember { mutableStateOf(false) }
 
     val showToast by viewModel.showToast.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -83,6 +107,7 @@ fun VersiculoScreen(
     var selectedText by remember { mutableStateOf("") }
 
         Scaffold(
+            containerColor = corLogo,
         snackbarHost = {
             SnackbarHost(
                 hostState = snackbarHostState,
@@ -91,6 +116,12 @@ fun VersiculoScreen(
         },
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = corLogo,
+                    titleContentColor = corPreto,
+                    navigationIconContentColor = corPreto,
+                ),
+
                 title = {
                         Text(getNomeLivro(abbrev))
                 },
@@ -106,125 +137,127 @@ fun VersiculoScreen(
                         }
                     ) {
                         Icon(
-                            painterResource(com.composables.icons.heroicons.mini.R.drawable.heroicons_ic_chevron_left_mini),
-                            ""
+                            FeatherIcons.ArrowLeft,
+                            "",
+                            tint = corPreto,
                         )
                     }
                 },
 
                 actions = {
-                    if (selectedVerses.isNotEmpty()) {
-                        IconButton(
-                            onClick = {
-                                val texto = selectedTexts.values.joinToString("\n\n")
-                                shareText(context, texto)
+
+                        var mainExpansion by remember { mutableStateOf(false) }
+                        var chapterExpansion by remember { mutableStateOf(false) }
+
+                        Box {
+                            IconButton(onClick = { mainExpansion = true }) {
+
+                                Icon(TablerIcons.DotsVertical, contentDescription = "Opções", tint = corPreto)
                             }
-                        ) {
-                            Icon(
-                                painterResource(com.composables.icons.heroicons.mini.R.drawable.heroicons_ic_share_mini),
-                                "Compartilhar"
-                            )
+
+                            DropdownMenu(
+                                containerColor = corLogo,
+                                expanded = mainExpansion,
+                                onDismissRequest = { mainExpansion = false }
+                            ) {
+
+                                DropdownMenuItem(
+                                    text = { Text("Ir para Capítulo...", color = corPreto) },
+                                    leadingIcon = { Icon(TablerIcons.Directions, null, tint = corPreto) },
+                                    onClick = {
+                                        mainExpansion = false
+                                        chapterExpansion = true // Abre o segundo menu de capítulos
+                                    }
+                                )
+
+                                HorizontalDivider()
+
+
+                                DropdownMenuItem(
+                                    text = { Text("Aumentar Letra",color = corPreto) },
+                                    leadingIcon = { Icon(FeatherIcons.Plus, null, tint = corPreto) },
+                                    onClick = { increaseFont() }
+                                )
+
+
+                                DropdownMenuItem(
+                                    text = { Text("Diminuir Letra", color = corPreto) },
+                                    leadingIcon = { Icon(FeatherIcons.Minus, null,tint = corPreto) },
+                                    onClick = { decreaseFont() }
+                                )
+
+
+                                if (selectedVerses.isNotEmpty()) {
+                                    HorizontalDivider()
+                                    DropdownMenuItem(
+                                        text = { Text("Compartilhar Seleção") },
+                                        leadingIcon = { Icon(FeatherIcons.Share, null) },
+                                        onClick = {
+                                            mainExpansion = false
+                                            val texto = selectedTexts.values.joinToString("\n\n")
+                                            shareText(context, texto)
+                                        }
+                                    )
+                                }
+                            }
+
+
+                            DropdownMenu(
+                                containerColor = corLogo,
+                                expanded = chapterExpansion,
+                                onDismissRequest = { chapterExpansion = false }
+                            ) {
+                                chapters.forEachIndexed { index, _ ->
+                                    DropdownMenuItem(
+                                        colors = MenuDefaults.itemColors(
+                                            textColor = corPreto,          // Cor padrão do texto
+                                            leadingIconColor = corAzul,     // Cor padrão do ícone
+                                            trailingIconColor = corAzul,    // Cor do ícone da direita (se houver)
+
+                                        ),
+
+                                        text = { Text("Capítulo ${index + 1}") },
+                                        onClick = {
+                                            chapterExpansion = false
+                                            coroutineScope.launch {
+                                                listState.scrollToItem(index)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
-                    }
+                    })
 
-                    IconButton(onClick = { increaseFont() }) {
-                        Icon(
-                            painterResource(com.composables.icons.heroicons.micro.R.drawable.heroicons_ic_plus_micro),
-                            ""
-                        )
-                    }
-
-                    IconButton(onClick = { decreaseFont() }) {
-                        Icon(
-                            painterResource(com.composables.icons.heroicons.micro.R.drawable.heroicons_ic_minus_micro),
-                            ""
-                        )
-                    }
-
-                }
-            )
         }
     ) {
-        pading ->
-        LazyColumn(
-            modifier = Modifier.padding(pading)
-        ) {
-            itemsIndexed(chapters) { indexCapitulo, capitulo ->
-
-
-                Text(
-                    text = "Capítulo ${indexCapitulo + 1}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(8.dp)
-                )
-                HorizontalDivider()
-
-
-                capitulo.forEachIndexed { indexVerso, versiculo ->
-
-
-                    val verseId = "${indexCapitulo}_${indexVerso}"
-
-                    val isMenuOpen = expandedVerseId == verseId
-                    val isSelected = selectedVerses.contains(verseId)
-
-                    val textoCompleto =
-                        "${getNomeLivro(abbrev)} ${indexCapitulo + 1}:${indexVerso + 1} - $versiculo"
-
+                padding ->
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.padding(padding)
+            ) {
+                itemsIndexed(chapters) { indexCapitulo, capitulo ->
                     Text(
-                        text = "${indexVerso + 1}. $versiculo",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = fontSize.sp,
-                            lineHeight = (fontSize + 8).sp
-                        ),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp,
-                                vertical = 6.dp)
-                            .background(
-                            if (isSelected) Color.LightGray.copy(alpha = 0.5f) else Color.Transparent
-                                )
-                            .clickable{
-                                selectedText = textoCompleto
-                                expandedVerseId = verseId
-                            }
+                        text = "Capítulo ${indexCapitulo + 1}",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(8.dp),
+                        color = corAzul
                     )
-
-                    DropdownMenu(
-                        expanded = isMenuOpen,
-                        onDismissRequest = { expandedVerseId = null }
-                    ) {
-
-                        DropdownMenuItem(
-                            text = { Text("Compartilhar") },
-                            onClick = {
-                                shareText(context, selectedText)
-                                expandedVerseId = null
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            text = { Text("Copiar") },
-                            onClick = {
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("versiculo", selectedText)
-                                clipboard.setPrimaryClip(clip)
-                                expandedVerseId = null
-                            }
+                    capitulo.forEachIndexed { indexVerso, versiculo ->
+                        Text(
+                            text = "${indexVerso + 1}. $versiculo",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = fontSize.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = (fontSize + 8).sp
+                            ),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                         )
                     }
-
-
-
                 }
             }
         }
-
-
-
-    }
-
-
-    ToastMessage(showToast, fontSize,snackbarHostState)
+    ToastMessage(showToast, fontSize, snackbarHostState)
 }
 
 @Composable
