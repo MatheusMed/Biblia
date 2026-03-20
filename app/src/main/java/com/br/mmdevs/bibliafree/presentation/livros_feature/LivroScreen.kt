@@ -1,6 +1,7 @@
 package com.br.mmdevs.bibliafree.presentation.livros_feature
 
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,10 @@ import com.br.mmdevs.bibliafree.presentation.ui.theme.corBranco
 import com.br.mmdevs.bibliafree.presentation.ui.theme.corCard
 import com.br.mmdevs.bibliafree.presentation.ui.theme.corLogo
 import com.br.mmdevs.bibliafree.presentation.ui.theme.corPreto
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import compose.icons.FontAwesomeIcons
 import compose.icons.TablerIcons
 import compose.icons.fontawesomeicons.Brands
@@ -75,7 +81,7 @@ fun LivroScreen(
     onSearchChange: (String) -> Unit,
     navControler: NavController
 ) {
-
+    RequestNotificationPermission()
     var isSearchMode by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
@@ -261,7 +267,7 @@ fun ItemCardLivros(
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .clickable { onClick() },
 
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
 
         shape = RoundedCornerShape(12.dp),
 
@@ -285,6 +291,33 @@ fun ItemCardLivros(
             )
         }
 
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalPermissionsApi::class)
+@Composable
+fun RequestNotificationPermission() {
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val permissionState = rememberPermissionState(
+            android.Manifest.permission.POST_NOTIFICATIONS
+        )
+
+
+        LaunchedEffect(Unit) {
+            permissionState.launchPermissionRequest()
+        }
+
+
+        when {
+            permissionState.status.isGranted -> {
+
+            }
+            permissionState.status.shouldShowRationale -> {
+
+                Text("Precisamos da sua permissão para enviar o versículo diário.")
+            }
+        }
     }
 }
 fun getNomeLivro(sigla: String?): String {

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -174,6 +175,9 @@ fun HinoCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+
+        shape = RoundedCornerShape(12.dp),
 //        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = corBranco

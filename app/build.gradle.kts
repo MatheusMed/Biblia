@@ -1,9 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-
-
-
     alias(libs.plugins.dagger.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
@@ -87,6 +84,12 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation(libs.androidx.core.splashscreen)
 
+
+    // notificacoes
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation(libs.androidx.hilt.work)
+    implementation("androidx.startup:startup-runtime:1.2.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -39,16 +39,16 @@ class MainActivity : ComponentActivity() {
                     navController = rememberNavHostController,
                     startDestination = LivrosNavigator,
                     enterTransition = {
-                        slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(400)) + fadeIn(tween(400))
+                        slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(250)) + fadeIn(tween(250))
                     },
                     exitTransition = {
-                        slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(400)) + fadeOut(tween(400))
+                        slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(250)) + fadeOut(tween(250))
                     },
                     popEnterTransition = {
-                        slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(400)) + fadeIn(tween(400))
+                        slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(250)) + fadeIn(tween(250))
                     },
                     popExitTransition = {
-                        slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(400)) + fadeOut(tween(400))
+                        slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(250)) + fadeOut(tween(250))
                     }
                 ){
 

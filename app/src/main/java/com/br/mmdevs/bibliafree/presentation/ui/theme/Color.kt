@@ -12,7 +12,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 
-val corBranco = Color(0XFFF5E1DA)
+val corBranco = Color(0XFFF5F5F0)
 val corAzul = Color(0XFF189BFA)
 val corPreto = Color(0XFF332C39)
 val corLogo = Color(0XFFFFFFFF)
