@@ -25,9 +25,8 @@ Um aplicativo de Bíblia Sagrada e Harpa Cristã desenvolvido com tecnologias mo
 Se você quer apenas testar o aplicativo no seu dispositivo Android, siga os passos abaixo:
 
 1. Vá até a aba [**Releases**](https://github.com/MatheusMed/Biblia/releases/) deste repositório.
-2. Procure pela versão mais recente (ex: `v1.0.0`).
-3. Na seção **Assets**, baixe o arquivo `.apk`.
-4. No seu celular, abra o arquivo baixado e permita a instalação de fontes desconhecidas se solicitado.
+2. Na seção **Assets**, baixe o arquivo `.apk`.
+3. No seu celular, abra o arquivo baixado e permita a instalação de fontes desconhecidas se solicitado.
 
 ---
 
